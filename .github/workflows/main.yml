@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       stream_url:
-        description: 'Facebook හෝ YouTube Live Link එක මෙතනට දෙන්න'
+        description: 'Facebook Live Link එක මෙතනට දෙන්න'
         required: true
 
 jobs:
@@ -25,28 +25,29 @@ jobs:
 
       - name: Start Downloading Full Show
         run: |
-          # මෙහිදී 'mbasic' facebook ලින්ක් එකක් ලෙස පෙනී සිටීමට සලස්වා ඇත
-          yt-dlp -f "bestvideo[height<=480]+bestaudio/best[height<=480]" \
+          # මෙහිදී --cookies-from-browser වෙනුවට direct headers පාවිච්චි කරමු
+          # ලයිව් එකේ මුල සිටම (Live from start) දත්ත ලබා ගනී
+          yt-dlp -f "bestvideo[height<=480]+bestaudio/best" \
           --no-check-certificate \
           --live-from-start \
           --wait-for-video 60 \
-          --user-agent "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36" \
-          --add-header "Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8" \
-          --add-header "Accept-Language:en-US,en;q=0.5" \
-          --referer "https://mbasic.facebook.com/" \
-          --merge-output-format mp4 \
-          -o "musical_show.mp4" \
+          --geo-bypass \
+          --no-playlist \
+          --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
+          --add-header "Accept-Language:en-US,en;q=0.9" \
+          --add-header "Sec-Fetch-Mode:navigate" \
+          --referer "https://www.facebook.com/" \
+          -o "Ganga_Musical_Full.mp4" \
           "${{ github.event.inputs.stream_url }}"
 
-      - name: Check file existence
+      - name: Check if file exists
         if: always()
         run: ls -lh
 
-      - name: Upload Artifact
+      - name: Upload Video
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Full-Musical-Show-Video
+          name: Full-Musical-Video
           path: "*.mp4"
           retention-days: 1
-          
